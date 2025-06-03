@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>नयाँ ट्याब</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+        }
+
+        body {
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://source.unsplash.com/random/1920x1080/?nature,landscape') no-repeat center center fixed;
+            background-size: cover;
+            min-height: 100vh;
+            color: white;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-top: 100px;
+        }
+
+        .search-box {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto 40px;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 20px 12px 50px;
+            border: none;
+            border-radius: 24px;
+            font-size: 16px;
+            outline: none;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            backdrop-filter: blur(5px);
+        }
+
+        .search-engine-selector {
+            position: absolute;
+            left: 12px;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .search-engine-selector img {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+        }
+
+        .search-engines-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 8px 0;
+            margin-top: 8px;
+            display: none;
+            backdrop-filter: blur(5px);
+        }
+
+        .search-engines-dropdown.show {
+            display: block;
+        }
+
+        .search-engine-option {
+            display: flex;
+            align-items: center;
+            padding: 8px 16px;
+            cursor: pointer;
+            color: #333;
+        }
+
+        .search-engine-option:hover {
+            background: rgba(0,0,0,0.05);
+        }
+
+        .search-engine-option img {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            border-radius: 50%;
+        }
+
+        .speed-dial {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 24px;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .tile {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 120px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .tile:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .tile img {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 12px;
+            border-radius: 12px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        }
+
+        .tile-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-top: 8px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            letter-spacing: 0.5px;
+        }
+
+        .add-tile {
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            font-size: 28px;
+            color: rgba(255, 255, 255, 0.7);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .add-tile:hover {
+            border-color: rgba(255, 255, 255, 0.3);
+            color: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .add-tile.hidden {
+            display: none;
+        }
+
+        .clock {
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .time {
+            font-size: 84px;
+            font-weight: 300;
+            margin-bottom: 10px;
+        }
+
+        .date {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        /* Context Menu Styles */
+        .context-menu {
+            display: none;
+            position: fixed;
+            background: rgba(30, 30, 30, 0.98);
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
+            min-width: 180px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+
+        .context-menu.show {
+            display: block;
+        }
+
+        .context-menu-item {
+            padding: 12px 24px;
+            color: rgba(255, 255, 255, 0.9);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .context-menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .context-menu-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        #editTile {
+            color: #64B5F6;
+        }
+
+        #deleteTile {
+            color: #EF5350;
+        }
+
+        #editTile:hover {
+            background: rgba(100, 181, 246, 0.1);
+        }
+
+        #deleteTile:hover {
+            background: rgba(239, 83, 80, 0.1);
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: rgba(30, 30, 30, 0.95);
+            border-radius: 16px;
+            padding: 32px;
+            width: 90%;
+            max-width: 400px;
+            margin: auto;
+            position: relative;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal.show .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-title {
+            color: white;
+            font-size: 24px;
+            margin-bottom: 24px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 12px 16px 12px 45px;
+            margin-bottom: 0;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .modal-input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-input-container {
+            position: relative;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+        }
+
+        .modal-input-icon {
+            position: absolute;
+            left: 12px;
+            width: 20px;
+            height: 20px;
+            z-index: 1;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .modal-input-container:focus-within .modal-input-icon {
+            opacity: 1;
+        }
+
+        .modal-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .modal-button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-button.cancel {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .modal-button.cancel:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .modal-button.add {
+            background: #2196F3;
+            color: white;
+        }
+
+        .modal-button.add:hover {
+            background: #1976D2;
+        }
+
+        .modal-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Settings styles */
+        .settings-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(30, 30, 30, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .settings-button:hover {
+            transform: rotate(30deg);
+            background: rgba(40, 40, 40, 0.95);
+        }
+
+        .settings-button img {
+            width: 24px;
+            height: 24px;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+
+        .settings-button:hover img {
+            opacity: 1;
+        }
+
+        .settings-menu {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            background: rgba(30, 30, 30, 0.95);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            padding: 8px 0;
+            display: none;
+            z-index: 100;
+            backdrop-filter: blur(5px);
+            min-width: 200px;
+        }
+
+        .settings-menu.show {
+            display: block;
+        }
+
+        .settings-item {
+            padding: 12px 24px;
+            color: white;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            white-space: nowrap;
+            font-size: 14px;
+            position: relative;
+        }
+
+        .settings-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .settings-item img {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            opacity: 0.8;
+        }
+
+        .settings-item img.rotate {
+            transform: rotate(180deg);
+        }
+
+        .settings-submenu {
+            position: absolute;
+            right: 100%;
+            top: 0;
+            background: rgba(30, 30, 30, 0.95);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            padding: 8px 0;
+            display: none;
+            backdrop-filter: blur(5px);
+            min-width: 180px;
+        }
+
+        .settings-item:hover .settings-submenu {
+            display: block;
+        }
+
+        .settings-submenu-item {
+            padding: 8px 16px;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .settings-submenu-item img {
+            width: 18px;
+            height: 18px;
+            opacity: 0.8;
+        }
+
+        .settings-submenu-item:hover img {
+            opacity: 1;
+        }
+
+        .settings-submenu-item.active {
+            background: rgba(33, 150, 243, 0.3);
+        }
+
+        /* Theme variations */
+        body.theme-dark {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://source.unsplash.com/random/1920x1080/?night,dark') no-repeat center center fixed;
+        }
+
+        body.theme-light {
+            background: linear-gradient(rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.3)), url('https://source.unsplash.com/random/1920x1080/?light,bright') no-repeat center center fixed;
+            color: #333;
+        }
+
+        body.theme-light .tile {
+            background: rgba(200, 200, 200, 0.4);
+            border: 1px solid rgba(150, 150, 150, 0.3);
+            backdrop-filter: blur(10px);
+            color: #333;
+        }
+
+        body.theme-light .tile:hover {
+            background: rgba(180, 180, 180, 0.5);
+            border: 1px solid rgba(150, 150, 150, 0.4);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        body.theme-light .add-tile {
+            background: rgba(180, 180, 180, 0.3);
+            border: 2px dashed rgba(100, 100, 100, 0.3);
+            color: rgba(50, 50, 50, 0.7);
+        }
+
+        body.theme-light .add-tile:hover {
+            background: rgba(180, 180, 180, 0.4);
+            border-color: rgba(100, 100, 100, 0.4);
+            color: rgba(50, 50, 50, 0.9);
+        }
+
+        body.theme-light .tile-title {
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        body.theme-light .search-box input {
+            background: rgba(200, 200, 200, 0.4);
+            border: 1px solid rgba(150, 150, 150, 0.3);
+            color: #333;
+        }
+
+        body.theme-light .search-box input:focus {
+            background: rgba(220, 220, 220, 0.5);
+            box-shadow: 0 0 0 2px rgba(100, 100, 100, 0.2);
+        }
+
+        body.theme-light .search-engines-dropdown {
+            background: rgba(200, 200, 200, 0.95);
+            border: 1px solid rgba(150, 150, 150, 0.3);
+        }
+
+        body.theme-light .search-engine-option {
+            color: #333;
+        }
+
+        body.theme-light .search-engine-option:hover {
+            background: rgba(180, 180, 180, 0.3);
+        }
+
+        /* Clock styles */
+        .clock.style-minimal .time {
+            font-family: 'Arial', sans-serif;
+            font-weight: 300;
+        }
+
+        .clock.style-modern .time {
+            font-family: 'Roboto', sans-serif;
+            font-weight: 700;
+            letter-spacing: -2px;
+        }
+
+        .clock.style-classic .time {
+            font-family: 'Times New Roman', serif;
+            font-weight: 400;
+        }
+
+        /* Tile styles */
+        .tile.style-rounded {
+            border-radius: 20px;
+        }
+
+        .tile.style-square {
+            border-radius: 0;
+        }
+
+        .tile.style-circle {
+            border-radius: 50%;
+            aspect-ratio: 1;
+        }
+
+        /* Date styles */
+        .date.style-compact {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .date.style-expanded {
+            font-size: 20px;
+            font-weight: 500;
+        }
+
+        .date.style-minimal {
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Add Context Menu -->
+    <div class="context-menu" id="tileContextMenu">
+        <div class="context-menu-item" id="editTile">Edit</div>
+        <div class="context-menu-item" id="deleteTile">Delete</div>
+    </div>
+
+    <div class="container">
+        <div class="clock">
+            <div class="time" id="time">12:00</div>
+            <div class="date" id="date">सोमबार, जनवरी १</div>
+        </div>
+
+        <div class="search-box">
+            <div class="search-engine-selector" id="searchEngineSelector">
+                <img src="https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png" alt="Google" id="currentSearchEngine">
+                <div class="search-engines-dropdown" id="searchEnginesDropdown">
+                    <div class="search-engine-option" data-engine="google" data-url="https://www.google.com/search?q=">
+                        <img src="https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png" alt="Google">
+                        Google
+                    </div>
+                    <div class="search-engine-option" data-engine="duckduckgo" data-url="https://duckduckgo.com/?q=">
+                        <img src="https://duckduckgo.com/assets/common/dax-logo.svg" alt="DuckDuckGo">
+                        DuckDuckGo
+                    </div>
+                    <div class="search-engine-option" data-engine="bing" data-url="https://www.bing.com/search?q=">
+                        <img src="https://www.bing.com/sa/simg/favicon-2x.ico" alt="Bing">
+                        Bing
+                    </div>
+                    <div class="search-engine-option" data-engine="yahoo" data-url="https://search.yahoo.com/search?p=">
+                        <img src="data:image/jpeg;base64,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" alt="Yahoo">
+                        Yahoo
+                    </div>
+                    <div class="search-engine-option" data-engine="yandex" data-url="https://yandex.com/search/?text=">
+                        <img src="https://yastatic.net/s3/home-static/_/37/37a02b5dc7a51abac55d8a5b6c865f0e.png" alt="Yandex">
+                        Yandex
+                    </div>
+                </div>
+            </div>
+            <input type="text" placeholder="Search or type URL..." id="searchInput">
+        </div>
+        
+        <div class="speed-dial" id="speedDial">
+            <a href="https://www.google.com" class="tile">
+                <img src="https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png" alt="Google">
+                <div class="tile-title">Google</div>
+            </a>
+            <a href="https://www.youtube.com" class="tile">
+                <img src="https://www.youtube.com/s/desktop/7c155e84/img/favicon_144x144.png" alt="YouTube">
+                <div class="tile-title">YouTube</div>
+            </a>
+            <a href="https://www.facebook.com" class="tile">
+                <img src="https://www.facebook.com/images/fb_icon_325x325.png" alt="Facebook">
+                <div class="tile-title">Facebook</div>
+            </a>
+            <a href="https://www.gmail.com" class="tile">
+                <img src="https://www.gstatic.com/images/branding/product/2x/gmail_2020q4_512dp.png" alt="Gmail">
+                <div class="tile-title">Gmail</div>
+            </a>
+            <div class="tile add-tile" id="addTile">
+                +
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="addTileModal">
+        <div class="modal-content">
+            <div class="modal-title">Add New Tile</div>
+            <div class="modal-input-container">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm6.93 6h-2.95c-.32-1.25-.78-2.45-1.38-3.56 1.84.63 3.37 1.91 4.33 3.56zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2 0 .68.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56-1.84-.63-3.37-1.9-4.33-3.56zm2.95-8H5.08c.96-1.66 2.49-2.93 4.33-3.56C8.81 5.55 8.35 6.75 8.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2 0-.68.07-1.35.16-2h4.68c.09.65.16 1.32.16 2 0 .68-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95c-.96 1.65-2.49 2.93-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2 0-.68-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2h-3.38z'/%3E%3C/svg%3E" alt="URL" class="modal-input-icon">
+                <input type="text" class="modal-input" id="tileUrl" placeholder="Enter website URL...">
+            </div>
+            <div class="modal-input-container">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/%3E%3C/svg%3E" alt="Name" class="modal-input-icon">
+                <input type="text" class="modal-input" id="tileName" placeholder="Enter website name...">
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-button cancel" id="cancelAddTile">Cancel</button>
+                <button class="modal-button add" id="confirmAddTile" disabled>Add</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="editTileModal">
+        <div class="modal-content">
+            <div class="modal-title">Edit Tile</div>
+            <div class="modal-input-container">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm6.93 6h-2.95c-.32-1.25-.78-2.45-1.38-3.56 1.84.63 3.37 1.91 4.33 3.56zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2 0 .68.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56-1.84-.63-3.37-1.9-4.33-3.56zm2.95-8H5.08c.96-1.66 2.49-2.93 4.33-3.56C8.81 5.55 8.35 6.75 8.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2 0-.68.07-1.35.16-2h4.68c.09.65.16 1.32.16 2 0 .68-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95c-.96 1.65-2.49 2.93-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2 0-.68-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2h-3.38z'/%3E%3C/svg%3E" alt="URL" class="modal-input-icon">
+                <input type="text" class="modal-input" id="editTileUrl" placeholder="Enter website URL...">
+            </div>
+            <div class="modal-input-container">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/%3E%3C/svg%3E" alt="Name" class="modal-input-icon">
+                <input type="text" class="modal-input" id="editTileName" placeholder="Enter website name...">
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-button cancel" id="cancelEditTile">Cancel</button>
+                <button class="modal-button add" id="confirmEditTile" disabled>Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="deleteTileModal">
+        <div class="modal-content">
+            <div class="modal-title">Delete Tile</div>
+            <div style="text-align: center; margin-bottom: 24px; color: rgba(255,255,255,0.8);">
+                Are you sure you want to delete this tile?
+            </div>
+            <div class="modal-input-container" style="justify-content: center; margin-bottom: 24px;">
+                <div style="text-align: center;">
+                    <img id="deleteTileIcon" style="width: 64px; height: 64px; border-radius: 12px; margin-bottom: 12px;" alt="Tile Icon">
+                    <div id="deleteTileName" style="color: white; font-size: 16px;"></div>
+                    <div id="deleteTileUrl" style="color: rgba(255,255,255,0.5); font-size: 14px; margin-top: 4px;"></div>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-button cancel" id="cancelDeleteTile">Cancel</button>
+                <button class="modal-button" id="confirmDeleteTile" style="background: #EF5350; color: white;">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Settings Button and Menu -->
+    <div class="settings-button" id="settingsButton">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.03-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z'/%3E%3C/svg%3E" alt="Settings">
+    </div>
+    <div class="settings-menu" id="settingsMenu">
+        <div class="settings-item" id="toggleAddTile">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z'/%3E%3C/svg%3E" alt="Toggle Add Tile">
+            <span>Show Add Tile</span>
+        </div>
+        <div class="settings-item">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z'/%3E%3C/svg%3E" alt="Theme">
+            <span>Theme</span>
+            <div class="settings-submenu">
+                <div class="settings-submenu-item" data-theme="default">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z'/%3E%3C/svg%3E" alt="Default Theme">
+                    Default Theme
+                </div>
+                <div class="settings-submenu-item" data-theme="dark">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M10 2c-1.82 0-3.53.5-5 1.35C7.99 5.08 10 8.3 10 12s-2.01 6.92-5 8.65C6.47 21.5 8.18 22 10 22c5.52 0 10-4.48 10-10S15.52 2 10 2z'/%3E%3C/svg%3E" alt="Dark Theme">
+                    Dark Theme
+                </div>
+                <div class="settings-submenu-item" data-theme="light">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69zM12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm0-10c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z'/%3E%3C/svg%3E" alt="Light Theme">
+                    Light Theme
+                </div>
+            </div>
+        </div>
+        <div class="settings-item">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z'/%3E%3C/svg%3E" alt="Tile Style">
+            <span>Tile Style</span>
+            <div class="settings-submenu">
+                <div class="settings-submenu-item" data-tile-style="default">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M3 3v18h18V3H3zm16 16H5V5h14v14z'/%3E%3C/svg%3E" alt="Default Style">
+                    Default Style
+                </div>
+                <div class="settings-submenu-item" data-tile-style="rounded">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z'/%3E%3C/svg%3E" alt="Rounded">
+                    Rounded
+                </div>
+                <div class="settings-submenu-item" data-tile-style="square">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M3 3h18v18H3z'/%3E%3C/svg%3E" alt="Square">
+                    Square
+                </div>
+                <div class="settings-submenu-item" data-tile-style="circle">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z'/%3E%3C/svg%3E" alt="Circle">
+                    Circle
+                </div>
+            </div>
+        </div>
+        <div class="settings-item">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z'/%3E%3C/svg%3E" alt="Clock Style">
+            <span>Clock Style</span>
+            <div class="settings-submenu">
+                <div class="settings-submenu-item" data-clock-style="default">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z'/%3E%3C/svg%3E" alt="Default Style">
+                    Default Style
+                </div>
+                <div class="settings-submenu-item" data-clock-style="minimal">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z'/%3E%3C/svg%3E" alt="Minimal">
+                    Minimal
+                </div>
+                <div class="settings-submenu-item" data-clock-style="modern">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M22 5.72l-4.6-3.86-1.29 1.53 4.6 3.86L22 5.72zM7.88 3.39L6.6 1.86 2 5.71l1.29 1.53 4.59-3.85zM12.5 8H11v6l4.75 2.85.75-1.23-4-2.37V8zM12 4c-4.97 0-9 4.03-9 9s4.02 9 9 9c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 16c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z'/%3E%3C/svg%3E" alt="Modern">
+                    Modern
+                </div>
+                <div class="settings-submenu-item" data-clock-style="classic">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z'/%3E%3C/svg%3E" alt="Classic">
+                    Classic
+                </div>
+            </div>
+        </div>
+        <div class="settings-item">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z'/%3E%3C/svg%3E" alt="Date Style">
+            <span>Date Style</span>
+            <div class="settings-submenu">
+                <div class="settings-submenu-item" data-date-style="default">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z'/%3E%3C/svg%3E" alt="Default Style">
+                    Default Style
+                </div>
+                <div class="settings-submenu-item" data-date-style="compact">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z'/%3E%3C/svg%3E" alt="Compact">
+                    Compact
+                </div>
+                <div class="settings-submenu-item" data-date-style="expanded">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z'/%3E%3C/svg%3E" alt="Expanded">
+                    Expanded
+                </div>
+                <div class="settings-submenu-item" data-date-style="minimal">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z'/%3E%3C/svg%3E" alt="Minimal">
+                    Minimal
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateClock() {
+            const now = new Date();
+            
+            // Time
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('time').textContent = `${hours}:${minutes}`;
+            
+            // Date in English
+            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            
+            const day = days[now.getDay()];
+            const month = months[now.getMonth()];
+            const date = now.getDate();
+            
+            document.getElementById('date').textContent = `${day}, ${month} ${date}`;
+        }
+
+        // Update clock every minute
+        updateClock();
+        setInterval(updateClock, 60000);
+
+        let currentSearchEngine = {
+            name: 'google',
+            url: 'https://www.google.com/search?q='
+        };
+
+        document.getElementById('searchEngineSelector').addEventListener('click', function(e) {
+            document.getElementById('searchEnginesDropdown').classList.toggle('show');
+            e.stopPropagation();
+        });
+
+        document.addEventListener('click', function() {
+            document.getElementById('searchEnginesDropdown').classList.remove('show');
+        });
+
+        document.querySelectorAll('.search-engine-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const engine = this.dataset.engine;
+                const url = this.dataset.url;
+                const img = this.querySelector('img').src;
+                
+                currentSearchEngine.name = engine;
+                currentSearchEngine.url = url;
+                document.getElementById('currentSearchEngine').src = img;
+            });
+        });
+
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const query = this.value.trim();
+                if (query) {
+                    if (query.includes('.') || query.startsWith('http')) {
+                        window.location.href = query.startsWith('http') ? query : `https://${query}`;
+                    } else {
+                        window.location.href = `${currentSearchEngine.url}${encodeURIComponent(query)}`;
+                    }
+                }
+            }
+        });
+
+        document.getElementById('addTile').addEventListener('click', function() {
+            document.getElementById('addTileModal').classList.add('show');
+            document.getElementById('tileUrl').focus();
+        });
+
+        document.getElementById('cancelAddTile').addEventListener('click', function() {
+            document.getElementById('addTileModal').classList.remove('show');
+            document.getElementById('tileUrl').value = '';
+            document.getElementById('tileName').value = '';
+        });
+
+        // Enable/disable add button based on input values
+        function validateInputs() {
+            const url = document.getElementById('tileUrl').value.trim();
+            const name = document.getElementById('tileName').value.trim();
+            document.getElementById('confirmAddTile').disabled = !(url && name);
+        }
+
+        document.getElementById('tileUrl').addEventListener('input', validateInputs);
+        document.getElementById('tileName').addEventListener('input', validateInputs);
+
+        document.getElementById('confirmAddTile').addEventListener('click', async function() {
+            const url = document.getElementById('tileUrl').value.trim();
+            const title = document.getElementById('tileName').value.trim();
+            
+            if (url && title) {
+                const tile = document.createElement('a');
+                const fullUrl = url.startsWith('http') ? url : `https://${url}`;
+                tile.href = fullUrl;
+                tile.className = 'tile';
+
+                // Try to get the site's icon using multiple methods
+                const domain = new URL(fullUrl).hostname;
+                const iconUrls = [
+                    `https://logo.clearbit.com/${domain}`,
+                    `https://icon.horse/icon/${domain}`,
+                    `https://www.google.com/s2/favicons?domain=${domain}&sz=128`,
+                    `${fullUrl}/apple-touch-icon.png`,
+                    `${fullUrl}/favicon-192x192.png`,
+                    `${fullUrl}/favicon-96x96.png`,
+                    `${fullUrl}/favicon-32x32.png`,
+                    `${fullUrl}/favicon.ico`
+                ];
+
+                // Function to check if image exists and has proper dimensions
+                const imageExists = async (url) => {
+                    try {
+                        const response = await fetch(url);
+                        if (!response.ok) return false;
+                        
+                        // For image URLs, try to load the image
+                        return new Promise((resolve) => {
+                            const img = new Image();
+                            img.onload = () => {
+                                // Check if image is not too small
+                                resolve(img.width >= 32 && img.height >= 32);
+                            };
+                            img.onerror = () => resolve(false);
+                            img.src = url;
+                        });
+                    } catch {
+                        return false;
+                    }
+                };
+
+                // Try each icon URL until we find one that works
+                let iconUrl = null;
+                for (const url of iconUrls) {
+                    if (await imageExists(url)) {
+                        iconUrl = url;
+                        break;
+                    }
+                }
+
+                // If no icon is found, use a better default icon
+                if (!iconUrl) {
+                    const letter = title.charAt(0).toUpperCase();
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 128;
+                    canvas.height = 128;
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Create gradient background
+                    const gradient = ctx.createLinearGradient(0, 0, 128, 128);
+                    gradient.addColorStop(0, '#4CAF50');
+                    gradient.addColorStop(1, '#2196F3');
+                    
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(0, 0, 128, 128);
+                    
+                    // Add letter
+                    ctx.fillStyle = 'white';
+                    ctx.font = 'bold 64px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(letter, 64, 64);
+                    
+                    iconUrl = canvas.toDataURL('image/png');
+                }
+
+                tile.innerHTML = `
+                    <img src="${iconUrl}" alt="${title}" onerror="this.onerror=null; this.src='${iconUrl}'">
+                    <div class="tile-title">${title}</div>
+                `;
+                
+                const speedDial = document.getElementById('speedDial');
+                speedDial.insertBefore(tile, document.getElementById('addTile'));
+            }
+        });
+
+        document.addEventListener('click', function() {
+            document.getElementById('tileContextMenu').classList.remove('show');
+        });
+
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            const tile = e.target.closest('.tile:not(.add-tile)');
+            if (tile) {
+                const menu = document.getElementById('tileContextMenu');
+                menu.style.left = e.pageX + 'px';
+                menu.style.top = e.pageY + 'px';
+                menu.classList.add('show');
+                
+                // Store the current tile for edit/delete operations
+                menu.setAttribute('data-tile', tile.getAttribute('href'));
+                
+                document.getElementById('editTile').onclick = function() {
+                    const tile = document.querySelector(`a.tile[href="${menu.getAttribute('data-tile')}"]`);
+                    if (tile) {
+                        const url = tile.getAttribute('href');
+                        const name = tile.querySelector('.tile-title').textContent;
+                        
+                        document.getElementById('editTileUrl').value = url;
+                        document.getElementById('editTileName').value = name;
+                        
+                        document.getElementById('editTileModal').classList.add('show');
+                        document.getElementById('editTileUrl').focus();
+                        
+                        menu.classList.remove('show');
+                    }
+                };
+                
+                document.getElementById('deleteTile').onclick = function() {
+                    const tile = document.querySelector(`a.tile[href="${menu.getAttribute('data-tile')}"]`);
+                    if (tile) {
+                        // Set tile information in delete modal
+                        document.getElementById('deleteTileIcon').src = tile.querySelector('img').src;
+                        document.getElementById('deleteTileName').textContent = tile.querySelector('.tile-title').textContent;
+                        document.getElementById('deleteTileUrl').textContent = tile.getAttribute('href');
+                        
+                        // Show delete modal
+                        document.getElementById('deleteTileModal').classList.add('show');
+                        menu.classList.remove('show');
+                    }
+                };
+            }
+        });
+
+        document.getElementById('cancelEditTile').addEventListener('click', function() {
+            document.getElementById('editTileModal').classList.remove('show');
+            document.getElementById('editTileUrl').value = '';
+            document.getElementById('editTileName').value = '';
+        });
+
+        // Enable/disable save button based on input values
+        function validateEditInputs() {
+            const url = document.getElementById('editTileUrl').value.trim();
+            const name = document.getElementById('editTileName').value.trim();
+            document.getElementById('confirmEditTile').disabled = !(url && name);
+        }
+
+        document.getElementById('editTileUrl').addEventListener('input', validateEditInputs);
+        document.getElementById('editTileName').addEventListener('input', validateEditInputs);
+
+        document.getElementById('confirmEditTile').addEventListener('click', async function() {
+            const url = document.getElementById('editTileUrl').value.trim();
+            const title = document.getElementById('editTileName').value.trim();
+            const menu = document.getElementById('tileContextMenu');
+            const tile = document.querySelector(`a.tile[href="${menu.getAttribute('data-tile')}"]`);
+            
+            if (url && title && tile) {
+                const fullUrl = url.startsWith('http') ? url : `https://${url}`;
+                tile.href = fullUrl;
+
+                // Try to get the site's icon using multiple methods
+                const domain = new URL(fullUrl).hostname;
+                const iconUrls = [
+                    `https://logo.clearbit.com/${domain}`,
+                    `https://icon.horse/icon/${domain}`,
+                    `https://www.google.com/s2/favicons?domain=${domain}&sz=128`,
+                    `${fullUrl}/apple-touch-icon.png`,
+                    `${fullUrl}/favicon-192x192.png`,
+                    `${fullUrl}/favicon-96x96.png`,
+                    `${fullUrl}/favicon-32x32.png`,
+                    `${fullUrl}/favicon.ico`
+                ];
+
+                let iconUrl = null;
+                for (const url of iconUrls) {
+                    if (await imageExists(url)) {
+                        iconUrl = url;
+                        break;
+                    }
+                }
+
+                if (!iconUrl) {
+                    const letter = title.charAt(0).toUpperCase();
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 128;
+                    canvas.height = 128;
+                    const ctx = canvas.getContext('2d');
+                    
+                    const gradient = ctx.createLinearGradient(0, 0, 128, 128);
+                    gradient.addColorStop(0, '#4CAF50');
+                    gradient.addColorStop(1, '#2196F3');
+                    
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(0, 0, 128, 128);
+                    
+                    ctx.fillStyle = 'white';
+                    ctx.font = 'bold 64px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(letter, 64, 64);
+                    
+                    iconUrl = canvas.toDataURL('image/png');
+                }
+
+                tile.innerHTML = `
+                    <img src="${iconUrl}" alt="${title}" onerror="this.onerror=null; this.src='${iconUrl}'">
+                    <div class="tile-title">${title}</div>
+                `;
+
+                document.getElementById('editTileModal').classList.remove('show');
+            }
+        });
+
+        document.getElementById('cancelDeleteTile').addEventListener('click', function() {
+            document.getElementById('deleteTileModal').classList.remove('show');
+        });
+
+        document.getElementById('confirmDeleteTile').addEventListener('click', function() {
+            const menu = document.getElementById('tileContextMenu');
+            const tile = document.querySelector(`a.tile[href="${menu.getAttribute('data-tile')}"]`);
+            if (tile) {
+                tile.remove();
+                document.getElementById('deleteTileModal').classList.remove('show');
+            }
+        });
+
+        // Settings functionality
+        document.getElementById('settingsButton').addEventListener('click', function(e) {
+            document.getElementById('settingsMenu').classList.toggle('show');
+            e.stopPropagation();
+        });
+
+        document.addEventListener('click', function() {
+            document.getElementById('settingsMenu').classList.remove('show');
+        });
+
+        // Theme settings
+        document.querySelectorAll('[data-theme]').forEach(item => {
+            item.addEventListener('click', function() {
+                const theme = this.dataset.theme;
+                document.body.className = theme !== 'default' ? `theme-${theme}` : '';
+                
+                // Update active state
+                document.querySelectorAll('[data-theme]').forEach(el => el.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Tile style settings
+        document.querySelectorAll('[data-tile-style]').forEach(item => {
+            item.addEventListener('click', function() {
+                const style = this.dataset.tileStyle;
+                document.querySelectorAll('.tile').forEach(tile => {
+                    tile.className = 'tile' + (style !== 'default' ? ` style-${style}` : '');
+                });
+                
+                // Update active state
+                document.querySelectorAll('[data-tile-style]').forEach(el => el.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Clock style settings
+        document.querySelectorAll('[data-clock-style]').forEach(item => {
+            item.addEventListener('click', function() {
+                const style = this.dataset.clockStyle;
+                const clock = document.querySelector('.clock');
+                clock.className = 'clock' + (style !== 'default' ? ` style-${style}` : '');
+                
+                // Update active state
+                document.querySelectorAll('[data-clock-style]').forEach(el => el.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Date style settings
+        document.querySelectorAll('[data-date-style]').forEach(item => {
+            item.addEventListener('click', function() {
+                const style = this.dataset.dateStyle;
+                const date = document.querySelector('.date');
+                date.className = 'date' + (style !== 'default' ? ` style-${style}` : '');
+                
+                // Update active state
+                document.querySelectorAll('[data-date-style]').forEach(el => el.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        const addTile = document.getElementById('addTile');
+        const toggleAddTile = document.getElementById('toggleAddTile');
+        let isAddTileVisible = true;
+
+        toggleAddTile.addEventListener('click', function() {
+            isAddTileVisible = !isAddTileVisible;
+            addTile.style.display = isAddTileVisible ? 'flex' : 'none';
+            
+            // Update text and icon
+            this.querySelector('span').textContent = isAddTileVisible ? 'Hide Add Tile' : 'Show Add Tile';
+            const img = this.querySelector('img');
+            img.src = isAddTileVisible 
+                ? "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M19 13H5v-2h14v2z'/%3E%3C/svg%3E"
+                : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z'/%3E%3C/svg%3E";
+            img.classList.toggle('rotate');
+        });
+    </script>
+</body>
+</html>
